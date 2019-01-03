@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Smart Key Fob</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<style>
+		.column{
+			float: left;
+			width: 25%;
+		}
+	</style>
+</head>
+<body>
+	<h1>
+		Keyfob Status
+	</h1>
+	<div>
+		<input style="background-color:red" type="text" id="fob1" maxlength="14" size="14" READONLY>
+    	<input style="background-color:red" type="text" id="fob2" maxlength="14" size="14" READONLY>
+    	<input style="background-color:red" type="text" id="fob2" maxlength="14" size="14" READONLY>
+	</div>
+	<div>
+		<button id='keyfob1'>Key Fob 1 History</button>
+		<button id='keyfob2'>Key Fob 2 History</button>
+		<button id='keyfob3'>Key Fob 3 History</button>
+	</div>
+	<div class="row" id="history">
+		<div class="column">
+			<h3>Timestamp</h3>
+			<p id="Timestamp"></p>
+		</div>
+		<div class="column">
+			<h3>Status</h3>
+			<p id="Status"></p>
+		</div>
+	</div>
+	<script>
+		var fob1status = new Array();
+		var fob2status = new Array();
+		var fob3status = new Array();
+		var fob1time = new Array();
+		var fob2time = new Array();
+		var fob3time = new Array();
+		var fob1size;
+		var fob2size;
+		var fob3size;
+		var i;
+    	var socket = io();
+
+    	function clearhistory(){
+    		document.getElementById("Timestamp").innerHTML = "";
+			document.getElementById("Status").innerHTML = "";
+    	}
+
+    	//fob status indicator
+    	socket.on('fobstatus1', function(msg){
+	      	console.log(msg);
+	      	if(msg == '1')
+	      		document.getElementById("fob1").style.backgroundColor = "green";
+	      	else
+	      		document.getElementById("fob1").style.backgroundColor = "red";
+	    });
+	    socket.on('fobstatus2', function(msg){
+	      	console.log(msg);
+	      	if(msg == '1')
+	      		document.getElementById("fob2").style.backgroundColor = "green";
+	      	else
+	      		document.getElementById("fob2").style.backgroundColor = "red";
+	    });
+	    socket.on('fobstatus3', function(msg){
+	      	console.log(msg);
+	      	if(msg == '1')
+	      		document.getElementById("fob3").style.backgroundColor = "green";
+	      	else
+	      		document.getElementById("fob3").style.backgroundColor = "red";
+	    });
+
+	    //receive objects from server
+	    socket.on('fob1history', function(msg){
+	    	fob1size = Object.keys(msg);
+	    	fob1time.push(msg[Object.keys(msg)][0].Timestamp);
+	    	fob1status.push(msg[Object.keys(msg)][0].Status);
+	    });
+	    socket.on('fob2history', function(msg){
+	    	fob2size = Object.keys(msg);
+	    	fob2time.push(msg[Object.keys(msg)][0].Timestamp);
+	      	fob2status.push(msg[Object.keys(msg)][0].Status);
+	    });
+	    socket.on('fob3history', function(msg){
+	    	fob3size = Object.keys(msg);
+	    	fob3time.push(msg[Object.keys(msg)][0].Timestamp);
+	      	fob3status.push(msg[Object.keys(msg)][0].Status);
+	    });
+
+	    //iterating through arrays to get data
+	    const kf1 = document.getElementById('keyfob1');
+		kf1.addEventListener('click', function(){
+			clearhistory();
+			for(i = 0; i < fob1size; i++){
+				document.getElementById("Timestamp").innerHTML += fob1time[i] + "<br>";
+				document.getElementById("Status").innerHTML += fob1status[i] + "<br>";
+			}
+		})
+
+		const kf2 = document.getElementById('keyfob2');
+		kf2.addEventListener('click', function(){
+			clearhistory();
+			for(i = 0; i < fob2size; i++){
+				document.getElementById("Timestamp").innerHTML += fob2time[i] + "<br>";
+				document.getElementById("Status").innerHTML += fob2status[i] + "<br>";
+			}
+		})
+
+		const kf3 = document.getElementById('keyfob3');
+		kf3.addEventListener('click', function(){
+			clearhistory();
+			for(i = 0; i < fob3size; i++){
+				document.getElementById("Timestamp").innerHTML += fob3time[i];
+				document.getElementById("Status").innerHTML += fob3status[i];
+			}
+		})
+	</script>
+</body>
+</html>
